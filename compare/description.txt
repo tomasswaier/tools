@@ -1,3 +1,0 @@
-A simple compare tool which takes in 2 arguments (2 txt files) and compares their contents
-:3
-
