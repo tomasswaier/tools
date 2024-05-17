@@ -1,6 +1,8 @@
 
 import sys
 import os
+#you pass in 2 arguments . option is 0 it will ask you to write in the ascii . else it will write in 'text'
+
 def write(option, text):
 
   path=os.path.dirname(os.path.abspath(__file__))

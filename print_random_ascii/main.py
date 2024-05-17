@@ -7,6 +7,7 @@ from write_into_folder import write
 
 
 def main():
+  #if the user inputs in wrong nu,ner pf args then it will kick him out
   if(len(sys.argv)<2):
     print("Usage:\nCall compiled code with 2 arguemnts 'Python3 ./main.py <Direcotry_name> <argumnt>'\nDirectory name can be anything you want for example if I wanted to store cat images I'd name it cats\nargument can be either -w (write) or -r (print random image)\n(if the directory doesnt exist then it will create one so for example ./main.py uwu -w will create a dir and prompt u to write in ascii art)")
   
@@ -16,6 +17,8 @@ def main():
     list=os.listdir(path+"/images")
     print(list)
     exit()
+  #we get path wehere we're currently . i didnt read niether os nor sys lib very much so if there is better way lemme know pls
+
   path=os.path.dirname(os.path.abspath(__file__))
   contents=os.listdir(path)
   contents.remove('description.txt')
