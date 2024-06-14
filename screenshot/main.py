@@ -1,6 +1,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk, Gdk, GdkPixbuf,cairo
+import os 
+from gi.repository import Gtk, Gdk, GdkPixbuf
 
 class Application(Gtk.Window):
   sc_frame=None
@@ -22,7 +23,6 @@ class Application(Gtk.Window):
     self.set_default_size(sizes.width, sizes.height)
     root_monitor=screen.get_default_screen().get_root_window()
     self.screenshot = Gdk.pixbuf_get_from_window(root_monitor, sizes.x, sizes.y, sizes.width, sizes.height)
-    self.screenshot.savev("screen.png", "png", ())
     self.pixbuf = self.screenshot.scale_simple(sizes.width, sizes.height, GdkPixbuf.InterpType.BILINEAR)
     image = Gtk.Image()
     image.set_from_pixbuf(self.pixbuf)
@@ -41,7 +41,7 @@ class Application(Gtk.Window):
     self.sc_frame=cr
     self.sc_frame.set_source_rgb(0.3,1,0.3)
     self.sc_frame.rectangle(self.left_x, self.left_y, self.right_x - self.left_x, self.right_y - self.left_y)
-    self.sc_frame.fill()
+    self.sc_frame.stroke()
   def on_key_press(self,widget,event):
     self.keys_pressed.add(event.keyval)
     if Gdk.KEY_s in self.keys_pressed and Gdk.KEY_k in self.keys_pressed :
@@ -70,6 +70,10 @@ class Application(Gtk.Window):
     elif Gdk.KEY_p in self.keys_pressed:
       print("quit")
       new_pixbuf = self.pixbuf.new_subpixbuf(self.left_x, self.left_y, self.right_x - self.left_x, self.right_y - self.left_y)
+      home_directory = os.path.expanduser("~")
+      
+      screenshots_directory = os.path.join(home_directory, "Pictures", "Screenshots")
+      os.chdir(screenshots_directory)      
       new_pixbuf.savev("finish.png","png",())
       Gtk.main_quit()
     self.canvas.queue_draw()
