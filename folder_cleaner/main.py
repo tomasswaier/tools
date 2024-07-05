@@ -39,7 +39,7 @@ def move(contents, filetypes):
 
 def main(contents, filetypes):
     #creates list of images to move
-    contetns = dir_check(contents, filetypes)
+    contents = dir_check(contents, filetypes)
     #moves images
     move(contents, filetypes)
 
