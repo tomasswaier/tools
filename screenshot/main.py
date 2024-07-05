@@ -9,10 +9,15 @@ class Application(Gtk.Window):
   sc_frame=None
   left_x=0
   left_y=0
+<<<<<<< HEAD
   right_x=0
   right_y=0
   #this variable represents the amount of pixels you will be jumping by 
   jump_value=50
+=======
+  right_x=400
+  right_y=400
+>>>>>>> parent of 5a2222d ( hm)
   screenshot=None
   def __init__(self):
     super().__init__(title="GoodBye World")
@@ -24,8 +29,6 @@ class Application(Gtk.Window):
     monitor = screen.get_primary_monitor()
     sizes=monitor.get_geometry()
 
-    self.right_x=sizes.width
-    self.right_y=sizes.height
     self.set_default_size(sizes.width, sizes.height)
     root_monitor=screen.get_default_screen().get_root_window()
     self.screenshot = Gdk.pixbuf_get_from_window(root_monitor, sizes.x, sizes.y, sizes.width, sizes.height)
@@ -45,7 +48,7 @@ class Application(Gtk.Window):
 
   def draw(self, widget, cr):
     self.sc_frame=cr
-    self.sc_frame.set_source_rgb(0.3,0.3,1)
+    self.sc_frame.set_source_rgb(0.3,1,0.3)
     self.sc_frame.rectangle(self.left_x, self.left_y, self.right_x - self.left_x, self.right_y - self.left_y)
     self.sc_frame.stroke()
   def copy_image_to_clipboard(self,pixbuf):
