@@ -34,6 +34,8 @@ class Application(Gtk.Window):
         self.screenshot = Gdk.pixbuf_get_from_window(root_monitor, sizes.x,
                                                      sizes.y, sizes.width,
                                                      sizes.height)
+        self.right_x = sizes.width
+        self.right_y = sizes.height
         self.pixbuf = self.screenshot.scale_simple(
             sizes.width, sizes.height, GdkPixbuf.InterpType.BILINEAR)
         image = Gtk.Image()
