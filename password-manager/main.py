@@ -4,16 +4,20 @@ import base64
 from cryptography.fernet import Fernet
 
 
-def decrypt(user_password: str, encrypted_password: list[str]) -> str:
-    key = base64.b64encode(f"{user_password:<32}".encode("utf-8"))
+def decrypt(access_key: str, encrypted_password: list[str]) -> str:
+    key = base64.b64encode(f"{access_key:<32}".encode("utf-8"))
     password_encryptor = Fernet(key=key)
-    return password_encryptor.decrypt(
-        encrypted_password[1].encode('utf-8')).decode("utf-8")
+    try:
+        return password_encryptor.decrypt(
+            encrypted_password[1].encode('utf-8')).decode("utf-8")
+    except Exception:
+        print("invalid password")
+        return ""
 
 
-def encrypt(user_password: str, encryption_password) -> bytes:
+def encrypt(access_key: str, user_password: str) -> bytes:
 
-    key = base64.b64encode(f"{encryption_password:<32}".encode("utf-8"))
+    key = base64.b64encode(f"{access_key:<32}".encode("utf-8"))
     password_encryptor = Fernet(key=key)
     return password_encryptor.encrypt(user_password.encode("utf-8"))
 
@@ -22,10 +26,10 @@ def add_password(file: pd.DataFrame):
     website = input("website:")
     account = website + '/' + input("account:")
     password = input('account password:')
-    user_password = input(
-        "encryption key can be any string or password that you remember\nencryption key:"
+    access_key = input(
+        "encryption key can be any string or password that you remember\naccess key:"
     )
-    encrypted_password = encrypt(user_password, password)
+    encrypted_password = encrypt(access_key, password)
     file_entry = pd.DataFrame({
         "account": [account],
         'password': [encrypted_password]
@@ -42,10 +46,21 @@ def read_password(file: pd.DataFrame):
     account = int(input('account/index :'))
 
     encrypted_password = file.at[account, 'password'].rsplit("'")
-    user_password = input('password: ')
+    user_password = input('access key: ')
     decrypted_password = decrypt(user_password, encrypted_password)
 
     print(decrypted_password)
+
+
+def change_password(file):
+    print(file['account'])
+    name = int(input("index:"))
+    new_password = input("new password:")
+    access_key = input("access key:")
+    encrypted_pasword = encrypt(access_key, new_password)
+    file.at[name, 'password'] = encrypted_pasword
+
+    file.to_csv('passwords.csv', index=False)
 
 
 def main():
@@ -54,13 +69,17 @@ def main():
         f.write("account,password")
         f.close()
     file = pd.read_csv("passwords.csv", header=0)
-    print("""\n1/A)add account+password\n2/R)read password\n3/X)exit\n\n""")
+    print(
+        "\n1/A)add account+password\n2/R)Read password\n3/C)Change passwordn\n"
+    )
     option = input("option:")
     match option:
         case "1" | "A" | "a":
             add_password(file)
         case "2" | "R" | "r":
             read_password(file)
+        case "3" | "C" | 'c':
+            change_password(file)
 
 
 main()
