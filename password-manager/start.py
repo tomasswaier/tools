@@ -4,10 +4,11 @@ import pytermgui as ptg
 import sys
 
 
-def mainWindow(manager, addAccount, readWindow):
+def mainWindow(manager, addAccount, readWindow, changeAccount):
     container = ptg.Container(
         ptg.Button('Add Account', lambda *_: manager.add(addAccount)),
         ptg.Button('Read Password', lambda *_: manager.add(readWindow)),
+        ptg.Button('Change Password', lambda *_: manager.add(changeAccount)),
         ptg.Button('Exit', lambda *_: manager.stop()),
     )
     return ptg.Window(container).set_title("Password Manager").center()
@@ -58,7 +59,7 @@ def addWindow(manager, file):
     website = ptg.InputField(prompt='website:')
     account = ptg.InputField(prompt='account:')
     password = ptg.InputField(prompt='password:')
-    access_key = ptg.InputField(prompt='access_key:')
+    access_key = ptg.InputField(prompt='access key:')
 
     container = ptg.Container(
         website, account, password, access_key, ptg.Label(""),
@@ -70,12 +71,49 @@ def addWindow(manager, file):
     return ptg.Window(container).set_title("Password Manager").center()
 
 
+#window that can be used whenever I need to announce something happened
+def singleTextWindow(manager, message):
+    container = ptg.Container(
+        ptg.Label(message),
+        ptg.Button("Return", lambda *_: print('xd')),
+    )
+    return ptg.Window(container).set_title("Password Manager").center()
+
+
+def changePassword(manager, file, account_index):
+    accountLable = ptg.Label(file.at[account_index, 'account'])
+    passwordInputField = ptg.InputField(prompt='New Password:')
+    accessKeyInputField = ptg.InputField(prompt='access key:')
+    container = ptg.Container(
+        accountLable, passwordInputField, accessKeyInputField,
+        ptg.Button(
+            "Submit", lambda *_: manager.add(
+                singleTextWindow(
+                    manager,
+                    change_password(file, account_index, passwordInputField.
+                                    value, accessKeyInputField.value)))))
+    return ptg.Window(container).set_title("Password Manager").center()
+
+
+def changeWindow(manager, file):
+
+    buttonList = []
+    for account_index in range(file.shape[0]):
+        buttonList.append(
+            ptg.Button(
+                file.at[account_index, 'account'], lambda *_: manager.add(
+                    changePassword(manager, file, account_index))))
+    container = ptg.Container(*buttonList)
+    return ptg.Window(container).set_title("Password Manager").center()
+
+
 def start():
     file = pd.read_csv("passwords.csv", header=0)
     with ptg.WindowManager() as manager:
+        changeAccount = changeWindow(manager, file)
         readAccount = readWindow(manager, file)
         addAccount = addWindow(manager, file)
-        window = mainWindow(manager, addAccount, readAccount)
+        window = mainWindow(manager, addAccount, readAccount, changeAccount)
         manager.add(window)
         manager.run()
     manager.stop()

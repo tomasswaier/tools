@@ -46,11 +46,12 @@ def read_password(file: pd.DataFrame, account: int, access_key: str) -> str:
 
 
 def change_password(file: pd.DataFrame, name: int, new_password: str,
-                    access_key: str) -> None:
+                    access_key: str) -> str:
     encrypted_pasword = encrypt(access_key, new_password)
     file.at[name, 'password'] = encrypted_pasword
 
     file.to_csv('passwords.csv', index=False)
+    return "Password changed successfuly"
 
 
 def delete_password(file: pd.DataFrame, name: int) -> None:
