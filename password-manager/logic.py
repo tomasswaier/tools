@@ -38,11 +38,11 @@ def add_password(manager, file: pd.DataFrame, account: str, password: str,
 
 
 #am I supposed to define parameters for pandas ?
-def read_password(file: pd.DataFrame, account: int, access_key: str) -> None:
+def read_password(file: pd.DataFrame, account: int, access_key: str) -> str:
     encrypted_password = file.at[account, 'password'].rsplit("'")
     decrypted_password = decrypt(access_key, encrypted_password)
     pyperclip.copy(decrypted_password)
-    print(decrypted_password)
+    return decrypted_password
 
 
 def change_password(file: pd.DataFrame, name: int, new_password: str,
