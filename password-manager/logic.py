@@ -24,8 +24,8 @@ def encrypt(access_key: str, user_password: str) -> bytes:
     return password_encryptor.encrypt(user_password.encode("utf-8"))
 
 
-def add_password(manager, file: pd.DataFrame, account: str, password: str,
-                 access_key: str) -> None:
+def add_password(file: pd.DataFrame, account: str, password: str,
+                 access_key: str) -> str:
     encrypted_password = encrypt(access_key, password)
     file_entry = pd.DataFrame({
         "account": [account],
@@ -34,7 +34,7 @@ def add_password(manager, file: pd.DataFrame, account: str, password: str,
 
     file = pd.concat([file, file_entry], ignore_index=True)
     file.to_csv('passwords.csv', index=False)
-    manager.stop()
+    return "Account added successfuly"
 
 
 #am I supposed to define parameters for pandas ?
