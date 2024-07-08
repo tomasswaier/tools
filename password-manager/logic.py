@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import base64
 from cryptography.fernet import Fernet
+import pyperclip
 
 
 def decrypt(access_key: str, encrypted_password: list[str]) -> str:
@@ -43,22 +44,31 @@ def add_password(file: pd.DataFrame):
 #am I supposed to define parameters for pandas ?
 def read_password(file: pd.DataFrame):
     print(file['account'])
-    account = int(input('account/index :'))
+    account = int(input('account index :'))
 
     encrypted_password = file.at[account, 'password'].rsplit("'")
     user_password = input('access key: ')
     decrypted_password = decrypt(user_password, encrypted_password)
-
+    pyperclip.copy(decrypted_password)
     print(decrypted_password)
 
 
-def change_password(file):
+def change_password(file: pd.DataFrame):
     print(file['account'])
     name = int(input("index:"))
     new_password = input("new password:")
     access_key = input("access key:")
     encrypted_pasword = encrypt(access_key, new_password)
     file.at[name, 'password'] = encrypted_pasword
+
+    file.to_csv('passwords.csv', index=False)
+
+
+def delete_password(file):
+    print(file['account'])
+    name = int(input("index:"))
+    file.drop([name], inplace=True)
+    print(file)
 
     file.to_csv('passwords.csv', index=False)
 
@@ -70,7 +80,7 @@ def main():
         f.close()
     file = pd.read_csv("passwords.csv", header=0)
     print(
-        "\n1/A)add account+password\n2/R)Read password\n3/C)Change passwordn\n"
+        "\n1/A)add account+password\n2/R)Read password\n3/C)Change passwordn\n4/D)Delete password\n"
     )
     option = input("option:")
     match option:
@@ -80,6 +90,8 @@ def main():
             read_password(file)
         case "3" | "C" | 'c':
             change_password(file)
+        case "4" | "D" | 'd':
+            delete_password(file)
 
 
 main()
