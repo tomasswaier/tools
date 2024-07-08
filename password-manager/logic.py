@@ -1,4 +1,5 @@
 import pandas as pd
+import sys
 import os
 import base64
 from cryptography.fernet import Fernet
@@ -23,13 +24,8 @@ def encrypt(access_key: str, user_password: str) -> bytes:
     return password_encryptor.encrypt(user_password.encode("utf-8"))
 
 
-def add_password(file: pd.DataFrame):
-    website = input("website:")
-    account = website + '/' + input("account:")
-    password = input('account password:')
-    access_key = input(
-        "encryption key can be any string or password that you remember\naccess key:"
-    )
+def add_password(manager, file: pd.DataFrame, account: str, password: str,
+                 access_key: str) -> None:
     encrypted_password = encrypt(access_key, password)
     file_entry = pd.DataFrame({
         "account": [account],
@@ -38,41 +34,33 @@ def add_password(file: pd.DataFrame):
 
     file = pd.concat([file, file_entry], ignore_index=True)
     file.to_csv('passwords.csv', index=False)
-    print(file)
+    manager.stop()
 
 
 #am I supposed to define parameters for pandas ?
-def read_password(file: pd.DataFrame):
-    print(file['account'])
-    account = int(input('account index :'))
-
+def read_password(file: pd.DataFrame, account: int, access_key: str) -> None:
     encrypted_password = file.at[account, 'password'].rsplit("'")
-    user_password = input('access key: ')
-    decrypted_password = decrypt(user_password, encrypted_password)
+    decrypted_password = decrypt(access_key, encrypted_password)
     pyperclip.copy(decrypted_password)
     print(decrypted_password)
 
 
-def change_password(file: pd.DataFrame):
-    print(file['account'])
-    name = int(input("index:"))
-    new_password = input("new password:")
-    access_key = input("access key:")
+def change_password(file: pd.DataFrame, name: int, new_password: str,
+                    access_key: str) -> None:
     encrypted_pasword = encrypt(access_key, new_password)
     file.at[name, 'password'] = encrypted_pasword
 
     file.to_csv('passwords.csv', index=False)
 
 
-def delete_password(file):
-    print(file['account'])
-    name = int(input("index:"))
+def delete_password(file: pd.DataFrame, name: int) -> None:
     file.drop([name], inplace=True)
     print(file)
 
     file.to_csv('passwords.csv', index=False)
 
 
+'''
 def main():
     if "passwords.csv" not in os.listdir():
         f = open("passwords.csv", 'a')
@@ -85,13 +73,38 @@ def main():
     option = input("option:")
     match option:
         case "1" | "A" | "a":
-            add_password(file)
+
+            website = input("website:")
+            account = website + '/' + input("account:")
+            password = input('account password:')
+            access_key = input(
+                "encryption key can be any string or password that you remember\naccess key:"
+            )
+
+            add_password(file, account, password, access_key)
         case "2" | "R" | "r":
-            read_password(file)
+
+            print(file['account'])
+            account = int(input('account index :'))
+
+            access_key = input('access key: ')
+            read_password(file, account, access_key)
+
         case "3" | "C" | 'c':
-            change_password(file)
+
+            print(file['account'])
+            name = int(input("index:"))
+            new_password = input("new password:")
+            access_key = input("access key:")
+            change_password(file, name, new_password, access_key)
         case "4" | "D" | 'd':
-            delete_password(file)
+
+            print(file['account'])
+            name = int(input("index:"))
+            delete_password(file, name)
 
 
-main()
+
+if __name__ == '__main__':
+    sys.exit(main())
+    '''
