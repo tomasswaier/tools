@@ -23,7 +23,7 @@ def encrypt(access_key: str, user_password: str) -> bytes:
 
 
 def add_password(file: pd.DataFrame, account: str, password: str,
-                 access_key: str) -> tuple[str, pd.DataFrame]:
+                 access_key: str) -> str:
     encrypted_password = encrypt(access_key, password)
     file_entry = pd.DataFrame({
         "account": [account],
@@ -32,7 +32,7 @@ def add_password(file: pd.DataFrame, account: str, password: str,
 
     file = pd.concat([file, file_entry], ignore_index=True)
     file.to_csv('passwords.csv', index=False)
-    return "Account added successfuly", file
+    return "Account added successfuly"
 
 
 #am I supposed to define parameters for pandas ?
@@ -52,11 +52,12 @@ def change_password(file: pd.DataFrame, name: int, new_password: str,
     return "Password changed successfuly"
 
 
-def delete_password(file: pd.DataFrame, name: int) -> None:
+def delete_password(file: pd.DataFrame, name: int) -> str:
     file.drop([name], inplace=True)
     print(file)
 
     file.to_csv('passwords.csv', index=False)
+    return "Account Deleted successfuly"
 
 
 '''
