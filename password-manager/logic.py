@@ -1,17 +1,15 @@
 import pandas as pd
-import sys
-import os
 import base64
 from cryptography.fernet import Fernet
 import pyperclip
 
 
-def decrypt(access_key: str, encrypted_password: list[str]) -> str:
+def decrypt(access_key: str, encrypted_password: str) -> str:
     key = base64.b64encode(f"{access_key:<32}".encode("utf-8"))
     password_encryptor = Fernet(key=key)
     try:
         return password_encryptor.decrypt(
-            encrypted_password[1].encode('utf-8')).decode("utf-8")
+            encrypted_password.encode('utf-8')).decode("utf-8")
     except Exception:
         print("invalid password")
         return ""
@@ -25,7 +23,7 @@ def encrypt(access_key: str, user_password: str) -> bytes:
 
 
 def add_password(file: pd.DataFrame, account: str, password: str,
-                 access_key: str) -> str:
+                 access_key: str) -> tuple[str, pd.DataFrame]:
     encrypted_password = encrypt(access_key, password)
     file_entry = pd.DataFrame({
         "account": [account],
@@ -34,12 +32,12 @@ def add_password(file: pd.DataFrame, account: str, password: str,
 
     file = pd.concat([file, file_entry], ignore_index=True)
     file.to_csv('passwords.csv', index=False)
-    return "Account added successfuly"
+    return "Account added successfuly", file
 
 
 #am I supposed to define parameters for pandas ?
 def read_password(file: pd.DataFrame, account: int, access_key: str) -> str:
-    encrypted_password = file.at[account, 'password'].rsplit("'")
+    encrypted_password = file.at[account, 'password'].rsplit("'")[1]
     decrypted_password = decrypt(access_key, encrypted_password)
     pyperclip.copy(decrypted_password)
     return decrypted_password
