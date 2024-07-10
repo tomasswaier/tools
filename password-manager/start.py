@@ -41,7 +41,7 @@ class passwordManager():
         return ptg.Window(container).set_title("Password Manager").center()
 
     #window that can be used whenever I need to announce something happened
-    def singleTextWindow(self, message, title):
+    def singleTextWindow(self, message: str, title: str) -> ptg.Window:
         container = ptg.Container(
             ptg.Label(message),
             #need to call new instance of the mainWindow for passswords.csv to refresh
@@ -50,7 +50,7 @@ class passwordManager():
         )
         return ptg.Window(container).set_title(title).center()
 
-    def getPassword(self, account):
+    def getPassword(self, account: int) -> ptg.Window:
         account_lable = ptg.Label(self.file.at[account, 'account'])
         access_key = ptg.InputField(prompt='access_key:')
         container = ptg.Container(
@@ -64,7 +64,7 @@ class passwordManager():
 
         return ptg.Window(container).set_title("Account Password").center()
 
-    def readWindow(self):
+    def readWindow(self) -> ptg.Window:
         buttonList = []
         for account_index in range(self.file.shape[0]):
             buttonList.append(
@@ -77,7 +77,7 @@ class passwordManager():
         return ptg.Window(container).set_title(
             "Password Manager :Account List(Read)").center()
 
-    def deleteWindow(self):
+    def deleteWindow(self) -> ptg.Window:
         buttonList = []
         for account_index in range(self.file.shape[0]):
             buttonList.append(
@@ -91,14 +91,14 @@ class passwordManager():
         return ptg.Window(container).set_title(
             "Password Manager :Account List(Change)").center()
 
-    def addWindow(self):
+    def addWindow(self) -> ptg.Window:
         website = ptg.InputField(prompt='website:')
         account = ptg.InputField(prompt='account:')
         password = ptg.InputField(prompt='password:')
         access_key = ptg.InputField(prompt='access key:')
-
         container = ptg.Container(
-            website, account, password, access_key, ptg.Label(""),
+            website, account, password, access_key,
+            ptg.Label("leave password field blank for random password"),
             ptg.Button(
                 'Submit', lambda *_: self.switch_window(
                     self.singleTextWindow(
@@ -110,7 +110,7 @@ class passwordManager():
         return ptg.Window(container).set_title(
             "Password Manager :Add Account").center()
 
-    def changePassword(self, account_index):
+    def changePassword(self, account_index: int) -> ptg.Window:
         accountLable = ptg.Label(self.file.at[account_index, 'account'])
         passwordInputField = ptg.InputField(prompt='New Password:')
         accessKeyInputField = ptg.InputField(prompt='access key:')
@@ -125,7 +125,7 @@ class passwordManager():
         return ptg.Window(container).set_title(
             "Password Manager:Change Password").center()
 
-    def changeWindow(self):
+    def changeWindow(self) -> ptg.Window:
 
         buttonList = []
         for account_index in range(self.file.shape[0]):
@@ -138,7 +138,7 @@ class passwordManager():
         return ptg.Window(container).set_title(
             "Password Manager :Account List(Change)").center()
 
-    def switch_window(self, new_window):
+    def switch_window(self, new_window: ptg.Window) -> None:
         # Close all open windows before adding the new one
         for window in self.open_windows:
             self.manager.remove(window)

@@ -1,5 +1,5 @@
 import pandas as pd
-import base64
+import base64, secrets
 from cryptography.fernet import Fernet
 import pyperclip
 
@@ -24,6 +24,8 @@ def encrypt(access_key: str, user_password: str) -> bytes:
 
 def add_password(file: pd.DataFrame, account: str, password: str,
                  access_key: str) -> str:
+    if password == '':
+        password = secrets.token_urlsafe(13)
     encrypted_password = encrypt(access_key, password)
     file_entry = pd.DataFrame({
         "account": [account],
@@ -35,7 +37,6 @@ def add_password(file: pd.DataFrame, account: str, password: str,
     return "Account added successfuly"
 
 
-#am I supposed to define parameters for pandas ?
 def read_password(file: pd.DataFrame, account: int, access_key: str) -> str:
     encrypted_password = file.at[account, 'password'].rsplit("'")[1]
     decrypted_password = decrypt(access_key, encrypted_password)
@@ -48,6 +49,7 @@ def change_password(file: pd.DataFrame, name: int, new_password: str,
     encrypted_pasword = encrypt(access_key, new_password)
     file.at[name, 'password'] = encrypted_pasword
 
+    #I do not return the file but save it instead because I need the main IU function to load it again
     file.to_csv('passwords.csv', index=False)
     return "Password changed successfuly"
 
