@@ -2,7 +2,7 @@
 import gi
 import datetime
 
-gi.require_version('Gtk', '3.0')
+gi.require_version("Gtk", "3.0")
 import os
 from gi.repository import Gtk, Gdk, GdkPixbuf
 
@@ -13,8 +13,10 @@ class Application(Gtk.Window):
     left_y = 0
     right_x = 0
     right_y = 0
-    #this variable represents the amount of pixels you will be jumping by
-    jump_value = 50
+    # this variable represents the amount of pixels you will be jumping by
+    default_jump_value = 50
+    # this variable is used to move the border with user input(103wj will move top boredr by 103 pix down)
+    input_jump_value = 0
     right_x = 400
     right_y = 400
     screenshot = None
@@ -31,13 +33,14 @@ class Application(Gtk.Window):
 
         self.set_default_size(sizes.width, sizes.height)
         root_monitor = screen.get_default_screen().get_root_window()
-        self.screenshot = Gdk.pixbuf_get_from_window(root_monitor, sizes.x,
-                                                     sizes.y, sizes.width,
-                                                     sizes.height)
+        self.screenshot = Gdk.pixbuf_get_from_window(
+            root_monitor, sizes.x, sizes.y, sizes.width, sizes.height
+        )
         self.right_x = sizes.width
         self.right_y = sizes.height
         self.pixbuf = self.screenshot.scale_simple(
-            sizes.width, sizes.height, GdkPixbuf.InterpType.BILINEAR)
+            sizes.width, sizes.height, GdkPixbuf.InterpType.BILINEAR
+        )
         image = Gtk.Image()
         image.set_from_pixbuf(self.pixbuf)
         overlay.add(image)
@@ -54,9 +57,12 @@ class Application(Gtk.Window):
     def draw(self, widget, cr):
         self.sc_frame = cr
         self.sc_frame.set_source_rgb(0.3, 1, 0.3)
-        self.sc_frame.rectangle(self.left_x, self.left_y,
-                                self.right_x - self.left_x,
-                                self.right_y - self.left_y)
+        self.sc_frame.rectangle(
+            self.left_x,
+            self.left_y,
+            self.right_x - self.left_x,
+            self.right_y - self.left_y,
+        )
         self.sc_frame.stroke()
 
     def copy_image_to_clipboard(self, pixbuf):
@@ -64,42 +70,63 @@ class Application(Gtk.Window):
         clipboard.set_image(pixbuf)
         clipboard.store()
 
+    def move_border(self, adjusted_value, operation):
+        if self.input_jump_value == 0:
+            setattr(
+                self,
+                adjusted_value,
+                getattr(self, adjusted_value) + self.default_jump_value * operation,
+            )
+        else:
+            setattr(
+                self,
+                adjusted_value,
+                getattr(self, adjusted_value) + self.input_jump_value * operation,
+            )
+
     def on_key_press(self, widget, event):
         self.keys_pressed.add(event.keyval)
         if Gdk.KEY_s in self.keys_pressed and Gdk.KEY_k in self.keys_pressed:
-            self.right_y -= self.jump_value
+            self.move_border("right_y", -1)
 
         elif Gdk.KEY_s in self.keys_pressed and Gdk.KEY_j in self.keys_pressed:
-            self.right_y += self.jump_value
+            self.move_border("right_y", +1)
 
         elif Gdk.KEY_d in self.keys_pressed and Gdk.KEY_l in self.keys_pressed:
-            self.right_x += self.jump_value
+            self.move_border("right_x", +1)
 
         elif Gdk.KEY_d in self.keys_pressed and Gdk.KEY_h in self.keys_pressed:
-            self.right_x -= self.jump_value
+            self.move_border("right_x", -1)
 
         elif Gdk.KEY_w in self.keys_pressed and Gdk.KEY_k in self.keys_pressed:
-            self.left_y -= self.jump_value
+            self.move_border("left_y", -1)
 
         elif Gdk.KEY_w in self.keys_pressed and Gdk.KEY_j in self.keys_pressed:
-            self.left_y += self.jump_value
+            self.move_border("left_y", +1)
 
         elif Gdk.KEY_a in self.keys_pressed and Gdk.KEY_l in self.keys_pressed:
-            self.left_x += self.jump_value
+            self.move_border("left_x", +1)
 
         elif Gdk.KEY_a in self.keys_pressed and Gdk.KEY_h in self.keys_pressed:
-            self.left_x -= self.jump_value
-        elif Gdk.KEY_p in self.keys_pressed:
-            new_pixbuf = self.pixbuf.new_subpixbuf(self.left_x, self.left_y,
-                                                   self.right_x - self.left_x,
-                                                   self.right_y - self.left_y)
+            self.move_border("left_x", -1)
+
+        elif Gdk.KEY_x in self.keys_pressed:
+            new_pixbuf = self.pixbuf.new_subpixbuf(
+                self.left_x,
+                self.left_y,
+                self.right_x - self.left_x,
+                self.right_y - self.left_y,
+            )
             home_directory = os.path.expanduser("~")
-            screenshots_directory = os.path.join(home_directory, "Pictures",
-                                                 "Screenshots")
+            screenshots_directory = os.path.join(
+                home_directory, "Pictures", "Screenshots"
+            )
             os.chdir(screenshots_directory)
             new_pixbuf.savev(str(datetime.datetime.now()) + ".png", "png", ())
 
             self.copy_image_to_clipboard(new_pixbuf)
+            Gtk.main_quit()
+        elif Gdk.KEY_q in self.keys_pressed:
             Gtk.main_quit()
         self.canvas.queue_draw()
 
