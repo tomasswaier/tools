@@ -16,7 +16,7 @@ class Application(Gtk.Window):
     # this variable represents the amount of pixels you will be jumping by
     default_jump_value = 50
     # this variable is used to move the border with user input(103wj will move top boredr by 103 pix down)
-    input_jump_value = 0
+    input_jump_value = ""
     right_x = 400
     right_y = 400
     screenshot = None
@@ -71,21 +71,29 @@ class Application(Gtk.Window):
         clipboard.store()
 
     def move_border(self, adjusted_value, operation):
-        if self.input_jump_value == 0:
+        if self.input_jump_value == "":
             setattr(
                 self,
                 adjusted_value,
                 getattr(self, adjusted_value) + self.default_jump_value * operation,
             )
+        # if the user gave us number input like 123wj will move top border down by 123 pixels
         else:
             setattr(
                 self,
                 adjusted_value,
-                getattr(self, adjusted_value) + self.input_jump_value * operation,
+                getattr(self, adjusted_value) + int(self.input_jump_value) * operation,
             )
+            self.input_jump_value = ""
 
     def on_key_press(self, widget, event):
+        value = event.keyval
+        if Gdk.keyval_name(value).isdigit():
+            self.input_jump_value += Gdk.keyval_name(value)
+            return
         self.keys_pressed.add(event.keyval)
+        # adjust border
+
         if Gdk.KEY_s in self.keys_pressed and Gdk.KEY_k in self.keys_pressed:
             self.move_border("right_y", -1)
 
@@ -109,7 +117,10 @@ class Application(Gtk.Window):
 
         elif Gdk.KEY_a in self.keys_pressed and Gdk.KEY_h in self.keys_pressed:
             self.move_border("left_x", -1)
+        elif Gdk.KEY_1 in self.keys_pressed:
+            Gtk.main_quit()
 
+        # screenshot
         elif Gdk.KEY_x in self.keys_pressed:
             new_pixbuf = self.pixbuf.new_subpixbuf(
                 self.left_x,
@@ -126,6 +137,7 @@ class Application(Gtk.Window):
 
             self.copy_image_to_clipboard(new_pixbuf)
             Gtk.main_quit()
+        # quit
         elif Gdk.KEY_q in self.keys_pressed:
             Gtk.main_quit()
         self.canvas.queue_draw()
