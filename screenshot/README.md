@@ -4,6 +4,6 @@ if you want to save then you can use x or q to quit
 
 you will need gtk 3.0
 
-This code will try to save the screenshot to /Picutures/Screenshots
+This code will try to save the screenshot to ~/Picutures/Screenshots
 
 you can specify the number of pixels the border should move just by pressing the numbers just like in nvim (123wj will move top border(w) down (j) by 123 pixels)

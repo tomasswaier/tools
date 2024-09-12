@@ -17,8 +17,6 @@ class Application(Gtk.Window):
     default_jump_value = 50
     # this variable is used to move the border with user input(103wj will move top boredr by 103 pix down)
     input_jump_value = ""
-    right_x = 400
-    right_y = 400
     screenshot = None
 
     def __init__(self):
@@ -122,6 +120,9 @@ class Application(Gtk.Window):
 
         # screenshot
         elif Gdk.KEY_x in self.keys_pressed:
+            # without the +16 it will keep moving the scrennshot down by 16 pixels . Not really sure why :p
+            self.left_y += 16
+            self.right_y += 16
             new_pixbuf = self.pixbuf.new_subpixbuf(
                 self.left_x,
                 self.left_y,
