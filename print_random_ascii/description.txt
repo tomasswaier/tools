@@ -3,3 +3,5 @@ A python script that displays ascii art located in images/ forlder.
 calling it without any argument(Python3 ./main.py) will print random image
 "./main.py -w" will prompt you to paste in your ascii art and it will be saved into its own .txt file in images
 :3
+
+prompt -r can only be usef after the directory has already been initialized

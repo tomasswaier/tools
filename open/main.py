@@ -24,6 +24,7 @@ class Window(Gtk.Window):
 
     # if its an image
     def open_image(self, img):
+        print(gdk_pixbuf_get_formats())
         self.image = Gtk.Image()
         self.image.set_from_file(img)
         self.add(self.image)
