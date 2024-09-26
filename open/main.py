@@ -24,7 +24,6 @@ class Window(Gtk.Window):
 
     # if its an image
     def open_image(self, img):
-        print(gdk_pixbuf_get_formats())
         self.image = Gtk.Image()
         self.image.set_from_file(img)
         self.add(self.image)
@@ -105,7 +104,7 @@ def main(file):
             display = Window()
             display.open_image(file)
             Gtk.main()
-        case "mp4" | "mp3" | "avi" | "mkv":
+        case "mp4" | "mp3" | "avi" | "mkv" | "m4a":
             display = Window()
             display.open_video(file)
             display.show_all()
