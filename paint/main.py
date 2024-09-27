@@ -1,5 +1,6 @@
 import pygame, sys, os
 from pygame.locals import *
+import datetime
 
 
 class Paint:
@@ -10,7 +11,7 @@ class Paint:
         self.pen_color = BLACK
         self.pen_width = 1
 
-        # Game loop
+        self.script_dir = os.path.dirname(os.path.realpath(__file__))
         self.image = image
         if self.image:
             self.image = self.image.convert()
@@ -108,9 +109,8 @@ class Paint:
 
     def create_interface(self):
         self.surface_position = [80, 30]
-        self.surface_shape = [520, 340]  # Default surface shape
+        self.surface_shape = [520, 340]
 
-        # Adjust surface size if there's an image
         if self.image:
             self.surface_shape = [self.image.get_width(), self.image.get_height()]
 
@@ -119,6 +119,8 @@ class Paint:
 
         if self.image:
             self.surface.blit(self.image, (0, 0))
+        else:
+            self.surface.fill(WHITE)
 
         self.screen.fill(BACKGROUND_PURPLE)
 
@@ -132,7 +134,6 @@ class Paint:
             (self.surface_position[0] - 2, self.surface_position[1] - 2),
         )
 
-        # Now blit the drawing surface (either the image or an empty surface)
         self.screen.blit(
             self.surface, (self.surface_position[0], self.surface_position[1])
         )
@@ -141,12 +142,15 @@ class Paint:
         self.color_pallet()
 
         # Draw the pen and eraser icons
-        self.pen_icon = pygame.image.load("images/pen.png").convert()
+        # Todo : Fix Eraser icon :p
+        self.pen_icon = pygame.image.load(self.script_dir + "/images/pen.png").convert()
         self.pen_icon = pygame.transform.scale(self.pen_icon, (30, 30))
         self.pen_icon_rect = self.pen_icon.get_rect(topleft=(10, 30))
         self.screen.blit(self.pen_icon, self.pen_icon_rect.topleft)
 
-        self.eraser_icon = pygame.image.load("images/eraser.png").convert()
+        self.eraser_icon = pygame.image.load(
+            self.script_dir + "/images/eraser.png"
+        ).convert()
         self.eraser_icon = pygame.transform.scale(self.eraser_icon, (30, 30))
         self.eraser_icon_rect = self.eraser_icon.get_rect(topleft=(40, 30))
         self.screen.blit(self.eraser_icon, self.eraser_icon_rect.topleft)
@@ -219,8 +223,18 @@ class Paint:
 
             # Check for key press to quit
             pressed = pygame.key.get_pressed()
-            if pressed[pygame.K_q]:
-                pygame.image.save(self.surface, "image.png")
+            if pressed[pygame.K_1]:
+                pygame.quit()
+            elif pressed[pygame.K_x]:
+                name = str(datetime.datetime.now()) + ".png"
+                if len(sys.argv) > 1:
+                    name = sys.argv[1]
+                home_directory = os.path.expanduser("~")
+                screenshots_directory = os.path.join(
+                    home_directory, "Pictures", "Screenshots"
+                )
+                os.chdir(screenshots_directory)
+                pygame.image.save(self.surface, name)
                 pygame.quit()
             elif pressed[pygame.K_s]:
                 self.pen_color = WHITE
@@ -249,7 +263,7 @@ if __name__ == "__main__":
     image = None
     if len(sys.argv) > 1 and sys.argv[1]:
         # fix this
-        image = pygame.image.load(os.path.abspath(sys.argv[1]))
+        image = pygame.image.load(sys.argv[1])
         window_height = image.get_height() + 110  # 30+height+80 ( top gap + bottom gap
         window_width = image.get_width() + 80  # 80+width
     color_picker = []

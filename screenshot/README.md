@@ -7,3 +7,5 @@ you will need gtk 3.0
 This code will try to save the screenshot to ~/Picutures/Screenshots
 
 you can specify the number of pixels the border should move just by pressing the numbers just like in nvim (123wj will move top border(w) down (j) by 123 pixels)
+
+pressing e while editing border will try to open my paint tool . The path is hardcoded so you will need to change that

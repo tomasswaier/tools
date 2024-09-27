@@ -63,11 +63,6 @@ class Application(Gtk.Window):
         )
         self.sc_frame.stroke()
 
-    def copy_image_to_clipboard(self, pixbuf):
-        clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        clipboard.set_image(pixbuf)
-        clipboard.store()
-
     def move_border(self, adjusted_value, operation):
         if self.input_jump_value == "":
             setattr(
@@ -119,29 +114,39 @@ class Application(Gtk.Window):
             Gtk.main_quit()
 
         # screenshot
-        elif Gdk.KEY_x in self.keys_pressed:
-            # without the +16 it will keep moving the scrennshot down by 16 pixels . Not really sure why :p
-            self.left_y += 16
-            self.right_y += 16
-            new_pixbuf = self.pixbuf.new_subpixbuf(
-                self.left_x,
-                self.left_y,
-                self.right_x - self.left_x,
-                self.right_y - self.left_y,
-            )
-            home_directory = os.path.expanduser("~")
-            screenshots_directory = os.path.join(
-                home_directory, "Pictures", "Screenshots"
-            )
-            os.chdir(screenshots_directory)
-            new_pixbuf.savev(str(datetime.datetime.now()) + ".png", "png", ())
 
-            self.copy_image_to_clipboard(new_pixbuf)
+        elif Gdk.KEY_e in self.keys_pressed:
+            path_to_image = self.save_image()
+
+            os.system(
+                "python3 ~/arch/tools/paint/main.py '" + path_to_image + "'"
+            )  # I use arch btw
+            Gtk.main_quit()
+        elif Gdk.KEY_x in self.keys_pressed:
+            x = self.save_image()
+
             Gtk.main_quit()
         # quit
         elif Gdk.KEY_q in self.keys_pressed:
             Gtk.main_quit()
         self.canvas.queue_draw()
+
+    def save_image(self):
+        # without the +16 it will keep moving the scrennshot down by 16 pixels . Not really sure why :p
+        self.left_y += 16
+        self.right_y += 16
+        new_pixbuf = self.pixbuf.new_subpixbuf(
+            self.left_x,
+            self.left_y,
+            self.right_x - self.left_x,
+            self.right_y - self.left_y,
+        )
+        home_directory = os.path.expanduser("~")
+        screenshots_directory = os.path.join(home_directory, "Pictures", "Screenshots")
+        os.chdir(screenshots_directory)
+        name = str(datetime.datetime.now()) + ".png"
+        new_pixbuf.savev(name, "png", ())
+        return name
 
     def on_key_release(self, widget, event):
         if event.keyval in self.keys_pressed:
