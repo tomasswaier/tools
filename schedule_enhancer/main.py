@@ -14,8 +14,7 @@ classes = {
     "PSI": [[1, [time(14, 0), time(15, 50)]], [1, [time(16, 0), time(17, 50)]],
             [1, [time(18, 0), time(19, 50)]], [2, [time(11, 0), time(12, 50)]],
             [2, [time(14, 0), time(15, 50)]], [2, [time(16, 0), time(17, 50)]],
-            [2, [time(18, 0), time(19, 50)]], [4, [time(9, 0), time(10, 50)]],
-            [4, [time(11, 0), time(12, 50)]]],
+            [2, [time(18, 0), time(19, 50)]]],
     "PIS": [[3, [time(14, 0), time(15, 50)]], [3, [time(16, 0), time(17, 50)]],
             [3, [time(18, 0), time(19, 50)]], [4, [time(9, 0), time(10, 50)]],
             [4, [time(11, 0), time(12, 50)]], [4, [time(14, 0), time(15, 50)]]],
@@ -70,7 +69,6 @@ def evaluate_class(class_time, timetable_day):
     for set_class in timetable_day:
         set_class_start_time = set_class[1][0]
         set_class_end_time = set_class[1][1]
-        print("comparing ", set_class_start_time, set_class_end_time, class_time[0], class_time[1])
         if set_class_start_time <= class_time[0] and class_time[1] <= set_class_end_time:
             return -1
         else:
@@ -93,31 +91,78 @@ def evaluate_all_class(timetable):
     return result_array
 
 
-def run_combinations(timetable, class_list):
-    evaluated_classes = sorted(evaluate_all_class(timetable))
-    class_list_copy = copy.copy(class_list)
-    print(evaluated_classes)
-    for evaluation in evaluated_classes:
+def reevaluate_classes(timetable, old_class_evaluations):
+    new_class_evaluations = []
+    for old_class in old_class_evaluations:
+        new_evaluation = evaluate_class(old_class[2][1], timetable[old_class[2][0] - 1])
+        old_class[0] = new_evaluation
+        new_class_evaluations.append(old_class)
+
+    sorted_new_evaluation = sorted(new_class_evaluations)
+    return sorted_new_evaluation
+
+
+def get_best_fit(timetable, evaluated_classes, missing_classes):
+    last_index = 0
+    for i, evaluation in enumerate(evaluated_classes):
         # print(evaluation)
-        if evaluation[1] in class_list_copy:
+        last_index = i + 1
+        if evaluation[1] in missing_classes:
+            evaluated_classes = reevaluate_classes(timetable, evaluated_classes[i:])
             if evaluate_class(evaluation[2][1], timetable[evaluation[2][0] - 1]) == - 1:
                 continue
             timetable[evaluation[2][0] - 1].append([evaluation[1], evaluation[2][1]])
-            class_list_copy.remove(evaluation[1])
-            if not class_list_copy:
-                return timetable
+            missing_classes.remove(evaluation[1])
+            break
+    return timetable, missing_classes, last_index
+
+
+def evaluated_subjects():
+    final_evaluation = []
+    for available_classes_name in classes:
+        final_evaluation.append([len(classes[available_classes_name]), available_classes_name])
+    final_evaluation.sort()
+    return list(map(lambda x: x[1], final_evaluation))
+
+
+def run_combinations(timetable, class_list):
+    evaluated_subject_list = evaluated_subjects()
+    evaluated_classes = sorted(evaluate_all_class(timetable))
+    class_list_copy = copy.copy(class_list)
+    # print("evaluated classes: ", evaluated_classes)
+    # while class_list_copy:
+    for class_list in evaluated_subject_list:
+        class_list_copy = [class_list]
+        timetable, class_list_copy, index = get_best_fit(timetable, evaluated_classes, class_list_copy)
+        print_timetable(timetable)
+        # print(evaluated_classes)
+        evaluated_classes = reevaluate_classes(timetable, evaluated_classes)
+        # print("reevaluated classes :", evaluated_classes)
     # after evaluation i go to combinations based off of lowest evaluated classes
-    print("couldn't set all classes ", class_list_copy)
+    if class_list_copy:
+        print("couldn't set all classes ", class_list_copy)
+    else:
+        print("final timetable score:")
     return timetable
 
 
 def print_timetable(timetable):
+    result_evaluation = 0
+    print("====================================================")
+    day_dict = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", 4: "Friday"}
     for i, day in enumerate(timetable):
         day = sorted(day, key=lambda x: x[1][0])
-        day_string = str(i) + "|"
+        day_string =f"{day_dict[i].ljust(10)}|"
+        prev = time(8, 0)
         for subject in day:
-            day_string += f"{subject[0]}:{subject[1][0].strftime('%H:%M')}-{subject[1][1].strftime('%H:%M')}|"
+            result_evaluation += time_difference(subject[1][0], prev)
+            entry = f"{subject[0]}:{subject[1][0].strftime('%H:%M')}-{subject[1][1].strftime('%H:%M')}"
+            prev = subject[1][1]
+            day_string += entry.ljust(18) + "|"
         print(day_string)
+
+    print("====================================================")
+    print(result_evaluation)
 
 
 def main():
