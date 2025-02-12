@@ -6,10 +6,11 @@ filetypes = {
     "images": ["png", "jpg", "jpeg", "webp"],
     # adding directories here for safety
     "directories": [""],
-    "documents": ["txt", "doc", "pdf"],
+    "documents": ["txt", "doc","docx", "pdf"],
     "zips": ["zip", "rar", "tar", "gz", "bz2"],
     "audio": ["m4a", "mp3", "wav"],
     "video": ["mp4", "avi", "mkv"],
+    "special_files": ["sql","py","c","go","html","css","js"],
 }
 
 

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 import gi
 import datetime
-
+import pyperclip
 gi.require_version("Gtk", "3.0")
 import os
 from gi.repository import Gtk, Gdk, GdkPixbuf
+pyperclip.set_clipboard("xclip")
 
 
 class Application(Gtk.Window):
@@ -133,8 +134,8 @@ class Application(Gtk.Window):
 
     def save_image(self):
         # without the +16 it will keep moving the scrennshot down by 16 pixels . Not really sure why :p
-        self.left_y += 16
-        self.right_y += 16
+        self.left_y += 32
+        self.right_y += 32
         new_pixbuf = self.pixbuf.new_subpixbuf(
             self.left_x,
             self.left_y,
@@ -146,6 +147,8 @@ class Application(Gtk.Window):
         os.chdir(screenshots_directory)
         name = str(datetime.datetime.now()) + ".png"
         new_pixbuf.savev(name, "png", ())
+        full_path=os.getcwd()+'/"'+name+'"'
+        pyperclip.copy(full_path)
         return name
 
     def on_key_release(self, widget, event):

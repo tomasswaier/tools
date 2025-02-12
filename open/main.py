@@ -24,6 +24,7 @@ class Window(Gtk.Window):
 
     # if its an image
     def open_image(self, img):
+        print("huh")
         self.image = Gtk.Image()
         self.image.set_from_file(img)
         self.add(self.image)
@@ -94,13 +95,13 @@ class Window(Gtk.Window):
 def main(file):
     # split the input file and match it with correct type
     # I dont belive use of magic library is necesary
-    fileType = str(file).split(".")
-
-    match fileType[-1]:
-        case "html" | "webm":
+    fileType = str(file).split(".")[-1]
+    match fileType:
+        case "html" | "webm" | "pdf" :
             # uses user browser to open specified website
             webbrowser.open(file, new=2)
         case "jpg" | "png" | "ani" | "gif" | "icns" | "jpeg" | "svg" | "xpm" | "xbm":
+            print("hm")
             display = Window()
             display.open_image(file)
             Gtk.main()
